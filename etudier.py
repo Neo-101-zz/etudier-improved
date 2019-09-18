@@ -321,6 +321,7 @@ var color = d3.scale.linear()
 
 var highlight_color = "blue";
 var highlight_trans = 0.1;
+var text_trans = 0.1
 
 var size = d3.scale.pow().exponent(1)
   .domain([1,%d])
@@ -433,6 +434,7 @@ var text = g.selectAll(".text")
   .enter().append("text")
   .attr("dy", ".35em")
   .style("font-size", nominal_text_size + "px")
+  .style("opacity", text_trans)
 
   if (text_center)
    text.text(function(d) { return (d.authors ? d.title+' - '+d.authors :
@@ -444,16 +446,18 @@ var text = g.selectAll(".text")
        d.title); });
 
   node.on("mouseover", function(d) {
-  set_highlight(d);
+  // set_highlight(d);
+  set_focus(d);
   })
   .on("mousedown", function(d) { d3.event.stopPropagation();
     focus_node = d;
     set_focus(d)
-    if (highlight_node === null) set_highlight(d)
+    // if (highlight_node === null) set_highlight(d)
+    if (highlight_node === null) set_focus(d)
 
 }   ).on("mouseout", function(d) {
         exit_highlight();
-
+        exit_focus(d);
 }   );
 
         d3.select(window).on("mouseup",
@@ -486,6 +490,15 @@ function exit_highlight()
       link.style("stroke", function(o) {return (isNumber(o.score) && o.score>=0)?color(o.score):default_link_color});
  }
             
+    }
+}
+
+function exit_focus(d)
+{   
+if (highlight_trans<1)  {
+    circle.style("opacity", 1);
+    text.style("opacity", text_trans);
+    link.style("opacity", 1);
     }
 }
 
@@ -609,7 +622,8 @@ function set_highlight(d)
                 {
                     if ((key0||hasConnections(highlight_node))&&vis_by_type(highlight_node.type)&&vis_by_node_score(highlight_node.score)) { 
                     if (focus_node!==null) set_focus(focus_node);
-                    set_highlight(highlight_node);
+                    // set_highlight(highlight_node);
+                    set_focus(highlight_node);
                     }
                     else {exit_highlight();}
                 }
